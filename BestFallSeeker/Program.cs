@@ -16,7 +16,7 @@ namespace BestFallSeeker
             try
             {
                 //Setup variables
-                string filePath = @"C:\map.txt";
+                string fileName = "map.txt";
                 char separator = ' ';
 
                 //Process
@@ -27,7 +27,7 @@ namespace BestFallSeeker
                 Console.WriteLine("Process started.\nPlease wait...");
 
                 //Loads raw data to memory
-                List<List<int>> mountainMap = GetFileData(filePath, separator);
+                List<List<int>> mountainMap = GetFileData(fileName, separator);
 
                 //Calls best fall calculator and stops timer after it returns data
                 List<Coordinate> bestFall = CalculateBestFall(mountainMap);
@@ -69,12 +69,13 @@ namespace BestFallSeeker
         //Loads file to memory
         //Used a list of lists to simplify the data handling
         private static List<List<int>> GetFileData(
-            string filePath,
+            string fileName,
             char separator)
         {
             List<List<int>> fileData = new List<List<int>>();
-            
+
             //Reads all bytes and uses stream reader to load data into object
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), $"\\{fileName}");
             byte[] byteArray = File.ReadAllBytes(filePath);
             using (var sreader = new StreamReader(new MemoryStream(byteArray)))
             {
