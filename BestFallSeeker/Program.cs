@@ -4,13 +4,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BestFallSeeker
 {
+    public class Global
+    {
+        public static int Status { get; set; }
+    }
+
     class Program
     {
-        //Main script
+        //Main program
         static void Main()
         {
             try
@@ -19,24 +25,25 @@ namespace BestFallSeeker
                 string fileName = "map.txt";
                 char separator = ' ';
 
-                //Process
-
                 //Create stopwatch to control elapsed time
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
-                Console.WriteLine("Process started.\nPlease wait...");
+
+                Console.Clear();
+                Console.WriteLine("\nProcess started.\nPlease wait...");
 
                 //Loads raw data to memory
                 List<List<int>> mountainMap = GetFileData(fileName, separator);
 
                 //Calls best fall calculator and stops timer after it returns data
-                List<Coordinate> bestFall = CalculateBestFall(mountainMap);
+                List<Coordinate> bestFall = CalculateBestFall(mountainMap, timer);
                 timer.Stop();
 
                 //Print results
                 if (bestFall != null)
                 {
                     //Titles
+                    Console.Clear();
                     Console.WriteLine("\nBest fall found:");
                     Console.WriteLine($"Elapsed: {Math.Round(timer.Elapsed.TotalSeconds, 2)} seconds");
                     Console.WriteLine($"Steps: {bestFall.Count}");
@@ -113,12 +120,16 @@ namespace BestFallSeeker
         //Calculates the best fall
         //The longest and tallest
         private static List<Coordinate> CalculateBestFall(
-            List<List<int>> mountainMap)
+            List<List<int>> mountainMap,
+            Stopwatch timer)
         {
             //Creates bag designed to store data incoming from parallel treads
             //All the feasible routes will be stored here during the analysis process
             ConcurrentBag<List<Coordinate>> feasiblePaths = new ConcurrentBag<List<Coordinate>>();
-            
+
+            //Starts status bar service to keep the console updated
+            StatusBar(feasiblePaths, mountainMap);
+
             //Max parallelism of 10 threads
             ParallelOptions parallelismLimit = new ParallelOptions { MaxDegreeOfParallelism = 10 };
 
@@ -131,7 +142,8 @@ namespace BestFallSeeker
                    //Creates the first coordinate, the landing spot
                    Coordinate landingSite = new Coordinate { row = rows, col = cols };
                    //Starts an exploring tree that will follow all the possible routes
-                   GetfeasiblePaths(new List<Coordinate>(), landingSite, mountainMap, feasiblePaths);
+                   GetfeasiblePaths(new List<Coordinate>(),
+                       landingSite, mountainMap, feasiblePaths);
                });
             });
 
@@ -145,6 +157,40 @@ namespace BestFallSeeker
                         .FirstOrDefault();
 
             return bestFall;
+        }
+
+        //Keeps the status bar updated while processing data
+        private static void StatusBar(ConcurrentBag<List<Coordinate>> feasiblePaths, List<List<int>> mountainMap)
+        {
+            Task.Run(() =>
+            {
+                int status = 0;
+                while(status < 100)
+                {
+                    //Calculates the amount of posible paths according to the defined rules
+                    decimal posiblePaths = (8) //All 4 corners have 2 posible paths
+                        + ((mountainMap.Count - 2) * 6) //Vertical edges have 3 posible paths
+                        + ((mountainMap.First().Count - 2) * 6) //Horizontal edges have 3 posible paths
+                        + ((mountainMap.Count - 2) * (mountainMap.First().Count - 2) * 4); //Rest of matrix has 4 posible paths
+                    //Calculates the evaluated paths
+                    decimal evaluatedPaths = feasiblePaths.Count;
+
+                    //Calculates the status percentage based on the evaluated paths and the posible paths
+                    int newStatus = Convert.ToInt32(100 * (evaluatedPaths / posiblePaths));
+
+                    //Updates status bar when the value increases
+                    if (newStatus > status)
+                    {
+                        status = newStatus;
+                        string statusBar = new String('|', status / 2) + new String('-', 50 - (status / 2));
+                        Console.Clear();
+                        Console.WriteLine($"\nEvaluated {string.Format("{0:n0}", evaluatedPaths)}" +
+                            $" of {string.Format("{0:n0}", posiblePaths)} posible falls...");
+                        Console.WriteLine($"\n{statusBar} >> {status}%");
+                    }
+                    Thread.Sleep(200);
+                }
+            });
         }
 
         //Creates an exploring tree
@@ -167,7 +213,7 @@ namespace BestFallSeeker
             if (ArrivedToEnd(history, mountainMap))
             {
                 //Adds the thread history to the feasible paths concurrent bag
-                feasiblePaths.Add(history); 
+                feasiblePaths.Add(history);
             }
             else
             {
