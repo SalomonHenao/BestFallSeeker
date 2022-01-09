@@ -154,7 +154,7 @@ namespace BestFallSeeker
             List<List<int>> mountainMap)
         {
             //Creates bag designed to store data incoming from parallel threads
-            //All feasible routes will be stored here during the analysis process
+            //All optional routes will be stored here during the analysis process
             ConcurrentBag<List<CoordinateDto>> optionalPaths = new ConcurrentBag<List<CoordinateDto>>();
 
             //Launches status bar service to keep the console updated
@@ -201,7 +201,7 @@ namespace BestFallSeeker
             history = history.Select(s => new CoordinateDto { Row = s.Row, Col = s.Col }).ToList();
 
             //Every new call stores a new coordinate in the history
-            //This enables the recopilation of all the feasible routes
+            //This enables the recopilation of all the optional routes
             history.Add(new CoordinateDto { Row = currentPosition.Row, Col = currentPosition.Col });
 
             //Gets all the available paths to follow from the current coordinate
@@ -219,7 +219,7 @@ namespace BestFallSeeker
             }
             else
             {
-                //Adds the thread history to the feasible paths concurrent bag
+                //Adds the thread history to the optional paths concurrent bag
                 optionalPaths.Add(history);
             }
         }
