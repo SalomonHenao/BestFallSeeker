@@ -15,24 +15,25 @@ namespace BestFallSeeker
                 string filePath = "C:/map.txt";
                 char separator = ' ';
 
+                //Start process
+                Console.Clear();
+                Console.WriteLine("\nProcess started.\nPlease wait...");
+
                 //Create stopwatch to control elapsed time
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
-
-                Console.Clear();
-                Console.WriteLine("\nProcess started.\nPlease wait...");
 
                 //Loads file data to memory
                 List<List<int>> mountainMap = Tools.GetFileData(filePath, separator);
 
                 //Calls the best fall calculator and stops timer after it returns a path
-                List<CoordinateDto> bestFall = Tools.CalculateBestPath(mountainMap);
+                List<CoordinateDto> bestPath = Tools.CalculateBestPath(mountainMap);
                 timer.Stop();
 
                 //Prints results
-                if (bestFall != null)
+                if (bestPath != null)
                 {
-                    Logs.PrintResult(bestFall, mountainMap, timer.Elapsed.TotalSeconds);
+                    Logs.PrintResult(bestPath, mountainMap, timer.Elapsed.TotalSeconds);
                 }
                 else
                 {

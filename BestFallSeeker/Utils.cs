@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BestFallSeeker
 {
-    //Class designed to contain all the console handlers
+    //Contains the console handlers
     class Logs
     {
         //Helper to print colored errors
@@ -20,57 +20,32 @@ namespace BestFallSeeker
         }
 
         //Helper to print colored success
-        public static void PrintSuccess(string error)
+        public static void PrintSuccess(string content)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(error);
+            Console.Write(content);
             Console.ForegroundColor = ConsoleColor.White;
-        }
-
-        //Prints the formatted result
-        public static void PrintResult(
-            List<CoordinateDto> bestFall,
-            List<List<int>> mountainMap,
-            double elapsedTime)
-        {
-            //Prints summary
-            Console.Clear();
-            PrintSuccess("\nBest fall:\n");
-            Console.WriteLine($"Steps: {bestFall.Count}");
-            Console.WriteLine($"Drop: {Tools.GetMapValue(bestFall.First(), mountainMap) - Tools.GetMapValue(bestFall.Last(), mountainMap)}");
-            Console.WriteLine($"Elapsed: {Math.Round(elapsedTime, 2)} seconds\n");
-
-            //Prints path steps
-            for (int i = 0; i < bestFall.Count; i++)
-            {
-                string lineIndicator = i == 0 ? "Start"
-                    : i == (bestFall.Count - 1) ? "Finally"
-                    : $"Step {i}";
-
-                PrintSuccess($"{lineIndicator} > ");
-                Console.Write($"X{bestFall[i].Row},Y{bestFall[i].Col} > ");
-                PrintSuccess($"[{Tools.GetMapValue(bestFall[i], mountainMap)}]\n");
-            }
         }
 
         //Keeps the status bar updated while processing data
         public static void StatusBar(
-            ConcurrentBag<List<CoordinateDto>> feasiblePaths,
+            ConcurrentBag<List<CoordinateDto>> optionalPaths,
             List<List<int>> mountainMap)
         {
             Task.Run(() =>
             {
+                //Calculates the amount of posible paths according to the defined rules
+                decimal posiblePaths = (8) //All 4 corners have 2 posible paths
+                    + ((mountainMap.Count - 2) * 6) //Vertical edges have 3 posible paths
+                    + ((mountainMap.First().Count - 2) * 6) //Horizontal edges have 3 posible paths
+                    + ((mountainMap.Count - 2) * (mountainMap.First().Count - 2) * 4); //Rest of matrix has 4 posible paths
+
+                //Starts in 0% and runs until 100% is reached
                 int status = 0;
                 while (status < 100)
                 {
-                    //Calculates the amount of posible paths according to the defined rules
-                    decimal posiblePaths = (8) //All 4 corners have 2 posible paths
-                        + ((mountainMap.Count - 2) * 6) //Vertical edges have 3 posible paths
-                        + ((mountainMap.First().Count - 2) * 6) //Horizontal edges have 3 posible paths
-                        + ((mountainMap.Count - 2) * (mountainMap.First().Count - 2) * 4); //Rest of matrix has 4 posible paths
-
                     //Calculates the already evaluated paths
-                    decimal evaluatedPaths = feasiblePaths.Count;
+                    decimal evaluatedPaths = optionalPaths.Count;
 
                     //Calculates the status percentage based on the evaluated paths and the posible paths
                     int newStatus = Convert.ToInt32(100 * (evaluatedPaths / posiblePaths));
@@ -79,8 +54,6 @@ namespace BestFallSeeker
                     if (newStatus > status)
                     {
                         status = newStatus;
-                        string statusBar = new String('|', status / 2) + new String(' ', 50 - (status / 2));
-
                         Console.Clear();
 
                         //Prints details of the process status
@@ -89,6 +62,7 @@ namespace BestFallSeeker
                             $" of {string.Format("{0:n0}", posiblePaths)} posible paths...");
 
                         //Prints the formatted status bar
+                        string statusBar = new String('|', status / 2) + new String(' ', 50 - (status / 2));
                         Console.BackgroundColor = ConsoleColor.White;
                         Console.ForegroundColor = ConsoleColor.Black;
                         Console.Write($"\n{statusBar}");
@@ -100,9 +74,35 @@ namespace BestFallSeeker
                 }
             });
         }
+
+        //Prints the formatted result
+        public static void PrintResult(
+            List<CoordinateDto> bestPath,
+            List<List<int>> mountainMap,
+            double elapsedTime)
+        {
+            //Prints summary
+            Console.Clear();
+            PrintSuccess("\nBest fall:\n");
+            Console.WriteLine($"Steps: {bestPath.Count}");
+            Console.WriteLine($"Drop: {Tools.GetMapValue(bestPath.First(), mountainMap) - Tools.GetMapValue(bestPath.Last(), mountainMap)}");
+            Console.WriteLine($"Elapsed: {Math.Round(elapsedTime, 2)} seconds\n");
+
+            //Prints path steps
+            for (int i = 0; i < bestPath.Count; i++)
+            {
+                string lineIndicator = i == 0 ? "Start"
+                    : i == (bestPath.Count - 1) ? "Finally"
+                    : $"Step {i}";
+
+                PrintSuccess($"{lineIndicator} > ");
+                Console.Write($"X{bestPath[i].Row},Y{bestPath[i].Col} > ");
+                PrintSuccess($"[{Tools.GetMapValue(bestPath[i], mountainMap)}]\n");
+            }
+        }
     }
 
-    //Class designed to contain all the system helpers
+    //Contains the system helpers
     class Tools
     {
         //Loads file to memory
@@ -155,10 +155,10 @@ namespace BestFallSeeker
         {
             //Creates bag designed to store data incoming from parallel threads
             //All feasible routes will be stored here during the analysis process
-            ConcurrentBag<List<CoordinateDto>> feasiblePaths = new ConcurrentBag<List<CoordinateDto>>();
+            ConcurrentBag<List<CoordinateDto>> optionalPaths = new ConcurrentBag<List<CoordinateDto>>();
 
             //Launches status bar service to keep the console updated
-            Logs.StatusBar(feasiblePaths, mountainMap);
+            Logs.StatusBar(optionalPaths, mountainMap);
 
             //Max parallelism of 10 threads
             ParallelOptions parallelismLimit = new ParallelOptions { MaxDegreeOfParallelism = 10 };
@@ -172,13 +172,13 @@ namespace BestFallSeeker
                    //Creates the first coordinate, the landing spot
                    CoordinateDto landingSite = new CoordinateDto { Row = rows, Col = cols };
                    //Starts an explorer tree that will follow all the possible routes
-                   GetfeasiblePaths(new List<CoordinateDto>(),
-                       landingSite, mountainMap, feasiblePaths);
+                   FollowPath(new List<CoordinateDto>(),
+                       landingSite, mountainMap, optionalPaths);
                });
             });
 
             //Orders the concurrent bag and extracts the longest and tallest route
-            List<CoordinateDto> bestFall = feasiblePaths
+            List<CoordinateDto> bestPath = optionalPaths
                         .OrderByDescending(o => o.Count)
                         .ThenByDescending(or =>
                             GetMapValue(or.First(), mountainMap)
@@ -186,16 +186,16 @@ namespace BestFallSeeker
                             GetMapValue(or.Last(), mountainMap))
                         .FirstOrDefault();
 
-            return bestFall;
+            return bestPath;
         }
 
         //Creates a concurrent tree to explore all the derivated paths
         //Grows with the possible paths starting from a position
-        public static void GetfeasiblePaths(
+        public static void FollowPath(
             List<CoordinateDto> history,
             CoordinateDto currentPosition,
             List<List<int>> mountainMap,
-            ConcurrentBag<List<CoordinateDto>> feasiblePaths)
+            ConcurrentBag<List<CoordinateDto>> optionalPaths)
         {
             //History contains all the steps that a thread has followed
             history = history.Select(s => new CoordinateDto { Row = s.Row, Col = s.Col }).ToList();
@@ -214,13 +214,13 @@ namespace BestFallSeeker
                 //Creates a new iteration with every available path to follow
                 foreach (CoordinateDto path in availablePaths)
                 {
-                    GetfeasiblePaths(history, path, mountainMap, feasiblePaths);
+                    FollowPath(history, path, mountainMap, optionalPaths);
                 }
             }
             else
             {
                 //Adds the thread history to the feasible paths concurrent bag
-                feasiblePaths.Add(history);
+                optionalPaths.Add(history);
             }
         }
 
