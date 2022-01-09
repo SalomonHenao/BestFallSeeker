@@ -9,11 +9,6 @@ using System.Threading.Tasks;
 
 namespace BestFallSeeker
 {
-    public class Global
-    {
-        public static int Status { get; set; }
-    }
-
     class Program
     {
         //Main program
@@ -160,7 +155,9 @@ namespace BestFallSeeker
         }
 
         //Keeps the status bar updated while processing data
-        private static void StatusBar(ConcurrentBag<List<Coordinate>> feasiblePaths, List<List<int>> mountainMap)
+        private static void StatusBar(
+            ConcurrentBag<List<Coordinate>> feasiblePaths,
+            List<List<int>> mountainMap)
         {
             Task.Run(() =>
             {
@@ -185,8 +182,8 @@ namespace BestFallSeeker
                         string statusBar = new String('|', status / 2) + new String('-', 50 - (status / 2));
                         Console.Clear();
                         Console.WriteLine($"\nEvaluated {string.Format("{0:n0}", evaluatedPaths)}" +
-                            $" of {string.Format("{0:n0}", posiblePaths)} posible falls...");
-                        Console.WriteLine($"\n{statusBar} >> {status}%");
+                            $" of {string.Format("{0:n0}", posiblePaths)} posible falls..." +
+                            $"\n\n{statusBar} > {status}%");
                     }
                     Thread.Sleep(200);
                 }
