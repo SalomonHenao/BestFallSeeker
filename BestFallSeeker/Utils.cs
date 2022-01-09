@@ -49,6 +49,10 @@ namespace BestFallSeeker
 
                     //Calculates the status percentage based on the evaluated paths and the potential paths
                     int newStatus = Convert.ToInt32(100 * (evaluatedPaths / potentialPaths));
+                    if(newStatus > 100)
+                    {
+                        newStatus = 100;
+                    }
 
                     //Updates the status bar when the value increases
                     if (newStatus > status)
