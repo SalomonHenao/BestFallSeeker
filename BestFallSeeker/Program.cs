@@ -32,17 +32,17 @@ namespace BestFallSeeker
                 //Prints results
                 if (bestFall != null)
                 {
-                    Logs.printResult(bestFall, mountainMap, timer.Elapsed.TotalSeconds);
+                    Logs.PrintResult(bestFall, mountainMap, timer.Elapsed.TotalSeconds);
                 }
                 else
                 {
-                    Logs.printError($"There seems to be an issue with the provided data.\nNo valid paths were found.");
+                    Logs.PrintError($"There seems to be an issue with the provided data.\nNo valid paths were found.");
                 }
             }
             catch(Exception ex)
             {
-                Logs.printError("\nPlease check the input dataset and the script setup.");
-                Logs.printError($"Error details: {ex.Message}");
+                Logs.PrintError("\nPlease check the input dataset and the script setup.");
+                Logs.PrintError($"Error details: {ex.Message}");
             }
 
         }

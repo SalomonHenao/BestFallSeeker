@@ -12,7 +12,7 @@ namespace BestFallSeeker
     class Logs
     {
         //Helper to print colored errors
-        public static void printError(string error)
+        public static void PrintError(string error)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(error);
@@ -20,7 +20,7 @@ namespace BestFallSeeker
         }
 
         //Helper to print colored success
-        public static void printSuccess(string error)
+        public static void PrintSuccess(string error)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write(error);
@@ -28,14 +28,14 @@ namespace BestFallSeeker
         }
 
         //Prints the formatted result
-        public static void printResult(
+        public static void PrintResult(
             List<CoordinateDto> bestFall,
             List<List<int>> mountainMap,
             double elapsedTime)
         {
             //Prints summary
             Console.Clear();
-            printSuccess("\nBest fall found:\n");
+            PrintSuccess("\nBest fall:\n");
             Console.WriteLine($"Steps: {bestFall.Count}");
             Console.WriteLine($"Drop: {Tools.GetMapValue(bestFall.First(), mountainMap) - Tools.GetMapValue(bestFall.Last(), mountainMap)}");
             Console.WriteLine($"Elapsed: {Math.Round(elapsedTime, 2)} seconds\n");
@@ -47,9 +47,9 @@ namespace BestFallSeeker
                     : i == (bestFall.Count - 1) ? "Finally"
                     : $"Step {i}";
 
-                printSuccess($"{lineIndicator} > ");
-                Console.Write($"X{bestFall[i].row},Y{bestFall[i].col} > ");
-                printSuccess($"[{Tools.GetMapValue(bestFall[i], mountainMap)}]\n");
+                PrintSuccess($"{lineIndicator} > ");
+                Console.Write($"X{bestFall[i].Row},Y{bestFall[i].Col} > ");
+                PrintSuccess($"[{Tools.GetMapValue(bestFall[i], mountainMap)}]\n");
             }
         }
 
@@ -171,7 +171,7 @@ namespace BestFallSeeker
                 Parallel.For(0, mountainMap.First().Count, parallelismLimit, cols =>
                {
                    //Creates the first coordinate, the landing spot
-                   CoordinateDto landingSite = new CoordinateDto { row = rows, col = cols };
+                   CoordinateDto landingSite = new CoordinateDto { Row = rows, Col = cols };
                    //Starts an explorer tree that will follow all the possible routes
                    GetfeasiblePaths(new List<CoordinateDto>(),
                        landingSite, mountainMap, feasiblePaths);
@@ -199,11 +199,11 @@ namespace BestFallSeeker
             ConcurrentBag<List<CoordinateDto>> feasiblePaths)
         {
             //History contains all the steps that a thread has followed
-            history = history.Select(s => new CoordinateDto { row = s.row, col = s.col }).ToList();
+            history = history.Select(s => new CoordinateDto { Row = s.Row, Col = s.Col }).ToList();
 
             //Every new call stores a new coordinate in the history
             //This enables the recopilation of all the feasible routes
-            history.Add(new CoordinateDto { row = currentPosition.row, col = currentPosition.col });
+            history.Add(new CoordinateDto { Row = currentPosition.Row, Col = currentPosition.Col });
 
             //If a thread arrives to a coordinate without an exit, it's time to store the route
             //If not, the thread must do a new iteration with each available path to follow
@@ -235,29 +235,29 @@ namespace BestFallSeeker
             //Calculates left path
             availablePaths.Add(new CoordinateDto
             {
-                row = currentPosition.row,
-                col = currentPosition.col - 1
+                Row = currentPosition.Row,
+                Col = currentPosition.Col - 1
             });
 
             //Calculates right path
             availablePaths.Add(new CoordinateDto
             {
-                row = currentPosition.row,
-                col = currentPosition.col + 1
+                Row = currentPosition.Row,
+                Col = currentPosition.Col + 1
             });
 
             //Calculates up path
             availablePaths.Add(new CoordinateDto
             {
-                row = currentPosition.row - 1,
-                col = currentPosition.col
+                Row = currentPosition.Row - 1,
+                Col = currentPosition.Col
             });
 
             //Calculates down path
             availablePaths.Add(new CoordinateDto
             {
-                row = currentPosition.row + 1,
-                col = currentPosition.col
+                Row = currentPosition.Row + 1,
+                Col = currentPosition.Col
             });
 
             //Filters the paths to allow only those matching the rules
@@ -265,10 +265,10 @@ namespace BestFallSeeker
             //2. The current position value must be greater than the next position value
             availablePaths = availablePaths
                             .Where(w =>
-                                w.row >= 0
-                                && w.col >= 0
-                                && w.row <= (mountainMap.Count() -1)
-                                && w.col <= (mountainMap.First().Count() -1)
+                                w.Row >= 0
+                                && w.Col >= 0
+                                && w.Row <= (mountainMap.Count() -1)
+                                && w.Col <= (mountainMap.First().Count() -1)
                                 && GetMapValue(currentPosition, mountainMap) > GetMapValue(w, mountainMap))
                             .ToList();
 
@@ -296,7 +296,7 @@ namespace BestFallSeeker
             CoordinateDto position,
             List<List<int>> mountainMap)
         {
-            return mountainMap[position.row][position.col];
+            return mountainMap[position.Row][position.Col];
         }
     }
 }

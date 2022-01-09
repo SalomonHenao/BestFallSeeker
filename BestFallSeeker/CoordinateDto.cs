@@ -4,8 +4,8 @@ namespace BestFallSeeker
 {
     public class CoordinateDto
     {
-        public int row { get; set; }
+        public int Row { get; set; }
 
-        public int col { get; set; }
+        public int Col { get; set; }
     }
 }
