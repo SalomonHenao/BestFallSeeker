@@ -34,11 +34,11 @@ namespace BestFallSeeker
         {
             Task.Run(() =>
             {
-                //Calculates the amount of posible paths according to the defined rules
-                decimal posiblePaths = (8) //All 4 corners have 2 posible paths
-                    + ((mountainMap.Count - 2) * 6) //Vertical edges have 3 posible paths
-                    + ((mountainMap.First().Count - 2) * 6) //Horizontal edges have 3 posible paths
-                    + ((mountainMap.Count - 2) * (mountainMap.First().Count - 2) * 4); //Rest of matrix has 4 posible paths
+                //Calculates the amount of potential paths according to the defined rules
+                decimal potentialPaths = (8) //All 4 corners have 2 potential paths
+                    + ((mountainMap.Count - 2) * 6) //Vertical edges have 3 potential paths
+                    + ((mountainMap.First().Count - 2) * 6) //Horizontal edges have 3 potential paths
+                    + ((mountainMap.Count - 2) * (mountainMap.First().Count - 2) * 4); //Rest of matrix has 4 potential paths
 
                 //Starts in 0% and runs until 100% is reached
                 int status = 0;
@@ -47,8 +47,8 @@ namespace BestFallSeeker
                     //Calculates the already evaluated paths
                     decimal evaluatedPaths = optionalPaths.Count;
 
-                    //Calculates the status percentage based on the evaluated paths and the posible paths
-                    int newStatus = Convert.ToInt32(100 * (evaluatedPaths / posiblePaths));
+                    //Calculates the status percentage based on the evaluated paths and the potential paths
+                    int newStatus = Convert.ToInt32(100 * (evaluatedPaths / potentialPaths));
 
                     //Updates the status bar when the value increases
                     if (newStatus > status)
@@ -59,7 +59,7 @@ namespace BestFallSeeker
                         //Prints details of the process status
                         Console.WriteLine($"\nProcessing {mountainMap.Count} * {mountainMap.First().Count} dataset..." +
                             $"\nEvaluated {string.Format("{0:n0}", evaluatedPaths)}" +
-                            $" of {string.Format("{0:n0}", posiblePaths)} posible paths...");
+                            $" of {string.Format("{0:n0}", potentialPaths)} potential paths...");
 
                         //Prints the formatted status bar
                         string statusBar = new String('|', status / 2) + new String(' ', 50 - (status / 2));
@@ -163,15 +163,15 @@ namespace BestFallSeeker
             //Max parallelism of 10 threads
             ParallelOptions parallelismLimit = new ParallelOptions { MaxDegreeOfParallelism = 10 };
 
-            //As we have two for loops, we'll examine 100 possible landing points at a time
-            //The system checks all the possible landing points and their derivated routes
+            //As we have two for loops, we'll examine 100 potential landing points at a time
+            //The system checks all the potential landing points and their derivated routes
             Parallel.For(0, mountainMap.Count, parallelismLimit, rows =>
             {
                 Parallel.For(0, mountainMap.First().Count, parallelismLimit, cols =>
                {
                    //Creates the first coordinate, the landing spot
                    CoordinateDto landingSite = new CoordinateDto { Row = rows, Col = cols };
-                   //Starts an explorer tree that will follow all the possible routes
+                   //Starts an explorer tree that will follow all the potential routes
                    FollowPath(new List<CoordinateDto>(),
                        landingSite, mountainMap, optionalPaths);
                });
@@ -190,7 +190,7 @@ namespace BestFallSeeker
         }
 
         //Creates a concurrent tree to explore all the derivated paths
-        //Grows with the possible paths starting from a position
+        //Grows with the potential paths starting from a position
         public static void FollowPath(
             List<CoordinateDto> history,
             CoordinateDto currentPosition,
