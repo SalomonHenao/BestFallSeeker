@@ -2,7 +2,7 @@ This repository contains a solution to the following challenge.
 It was developed using .Net Core 3.1.
 
 <img src="https://matildastorage.blob.core.windows.net/matildaservices/bestFallSeekerLoading.png" height="auto" width="300px">
-<img src="https://matildastorage.blob.core.windows.net/matildaservices/bestFallSeekerResult.png" height="300px" width="auto">
+<img src="https://matildastorage.blob.core.windows.net/matildaservices/bestFallSeekerResults.png" height="300px" width="auto">
 
 Let’s say you hopped on a flight to the Kitzbühel ski resort in Austria. Being a software engineer you 
 can’t help but value efficiency, so naturally you want to ski as long as possible and as fast as possible 
