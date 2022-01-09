@@ -204,23 +204,23 @@ namespace BestFallSeeker
             //This enables the recopilation of all the feasible routes
             history.Add(new CoordinateDto { Row = currentPosition.Row, Col = currentPosition.Col });
 
+            //Gets all the available paths to follow from the current coordinate
+            List<CoordinateDto> availablePaths = GetAvailablePaths(currentPosition, mountainMap);
+
             //If a thread arrives to a coordinate without an exit, it's time to store the route
             //If not, the thread must do a new iteration with each available path to follow
-            if (ArrivedToEnd(history, mountainMap))
+            if (availablePaths.Count() > 0)
             {
-                //Adds the thread history to the feasible paths concurrent bag
-                feasiblePaths.Add(history);
-            }
-            else
-            {
-                //Gets all the available paths to follow from the current coordinate
-                List<CoordinateDto> availablePaths = GetAvailablePaths(currentPosition, mountainMap);
-
                 //Creates a new iteration with every available path to follow
                 foreach (CoordinateDto path in availablePaths)
                 {
                     GetfeasiblePaths(history, path, mountainMap, feasiblePaths);
                 }
+            }
+            else
+            {
+                //Adds the thread history to the feasible paths concurrent bag
+                feasiblePaths.Add(history);
             }
         }
 
@@ -272,22 +272,6 @@ namespace BestFallSeeker
                             .ToList();
 
             return availablePaths;
-        }
-
-        //Validates if no available paths for a given position
-        public static bool ArrivedToEnd(
-            List<CoordinateDto> history,
-            List<List<int>> mountainMap)
-        {
-            List<CoordinateDto> pathOptions = GetAvailablePaths(history.Last(), mountainMap);
-            if(pathOptions.Count() > 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
         }
 
         //Extracts a cell value from the data map using XY coordinates
