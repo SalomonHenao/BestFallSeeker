@@ -82,6 +82,8 @@ namespace BestFallSeeker
             double elapsedTime)
         {
             //Prints summary
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.Clear();
             PrintSuccess("\nBest fall:\n");
             Console.WriteLine($"Steps: {bestPath.Count}");
