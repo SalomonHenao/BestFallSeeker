@@ -88,6 +88,9 @@ namespace BestFallSeeker
             List<List<int>> mountainMap,
             double elapsedTime)
         {
+            //Waits for loader worker to stop
+            Thread.Sleep(1000);
+
             //Prints summary
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
