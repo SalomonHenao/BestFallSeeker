@@ -58,23 +58,26 @@ namespace BestFallSeeker
                     if (newStatus > status)
                     {
                         status = newStatus;
-                        Console.Clear();
+                        if(status < 100)
+                        {
+                            Console.Clear();
 
-                        //Prints details of the process status
-                        Console.WriteLine($"\nProcessing {mountainMap.Count} * {mountainMap.First().Count} dataset..." +
-                            $"\nEvaluated {string.Format("{0:n0}", evaluatedPaths)}" +
-                            $" of {string.Format("{0:n0}", potentialPaths)} potential paths...");
+                            //Prints details of the process status
+                            Console.WriteLine($"\nProcessing {mountainMap.Count} * {mountainMap.First().Count} dataset..." +
+                                $"\nEvaluated {string.Format("{0:n0}", evaluatedPaths)}" +
+                                $" of {string.Format("{0:n0}", potentialPaths)} potential paths...");
 
-                        //Prints the formatted status bar
-                        string statusBar = new String('|', status / 2) + new String(' ', 50 - (status / 2));
-                        Console.BackgroundColor = ConsoleColor.White;
-                        Console.ForegroundColor = ConsoleColor.Black;
-                        Console.Write($"\n{statusBar}");
-                        Console.BackgroundColor = ConsoleColor.Black;
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine($" > {status}%");
+                            //Prints the formatted status bar
+                            string statusBar = new String('|', status / 2) + new String(' ', 50 - (status / 2));
+                            Console.BackgroundColor = ConsoleColor.White;
+                            Console.ForegroundColor = ConsoleColor.Black;
+                            Console.Write($"\n{statusBar}");
+                            Console.BackgroundColor = ConsoleColor.Black;
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine($" > {status}%");
+                        }
                     }
-                    Thread.Sleep(300);
+                    Thread.Sleep(500);
                 }
             });
         }
