@@ -12,7 +12,7 @@ namespace BestFallSeeker
             try
             {
                 //Setup variables
-                string fileName = "map.txt";
+                string filePath = "C:/map.txt";
                 char separator = ' ';
 
                 //Create stopwatch to control elapsed time
@@ -23,7 +23,7 @@ namespace BestFallSeeker
                 Console.WriteLine("\nProcess started.\nPlease wait...");
 
                 //Loads file data to memory
-                List<List<int>> mountainMap = Tools.GetFileData(fileName, separator);
+                List<List<int>> mountainMap = Tools.GetFileData(filePath, separator);
 
                 //Calls the best fall calculator and stops timer after it returns a path
                 List<CoordinateDto> bestFall = Tools.CalculateBestPath(mountainMap);
