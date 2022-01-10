@@ -12,7 +12,7 @@ namespace BestFallSeeker
             try
             {
                 //Setup variables
-                string filePath = "C:/map.txt";
+                string filePath = "map.txt";
                 char separator = ' ';
 
                 //Start process
